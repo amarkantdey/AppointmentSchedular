@@ -65,7 +65,6 @@ const addEvent = async (req, res, next) => {
         }
 
         if (validateEvent(new Date(start_event), new Date(end_event), eventsArray)) {
-            console.log(eventsArray);
             await firestore.collection("events").add(event);
             res.status(200).send("Record added successfully");
         } else {
