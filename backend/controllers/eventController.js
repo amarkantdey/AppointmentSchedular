@@ -47,7 +47,7 @@ const freeSlots = async (req, res, next) => {
 
 const addEvent = async (req, res, next) => {
     try {
-        const event = ({ start_event, end_event } = req.body);
+        const event = ({ start_event, end_event, timezone } = req.body);
 
         const events = await firestore.collection("events");
         const data = await events.get();
@@ -56,8 +56,8 @@ const addEvent = async (req, res, next) => {
             data.forEach((doc) => {
                 const event = new Event(
                     doc.id,
-                    doc.data().start_event,
-                    doc.data().end_event
+                    getTimeZoneFormat(doc.data().start_event, timezone).substring(0, 19),
+                    getTimeZoneFormat(doc.data().end_event, timezone).substring(0, 19)
                 );
                 eventsArray.push(event);
             });
