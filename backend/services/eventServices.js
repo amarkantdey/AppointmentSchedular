@@ -3,12 +3,13 @@ var moment = require("moment-timezone");
 
 //This function will return all the time slots based on current appointment configuration in .env file
 
-function getSlots(date, timezone) {
+function getSlots(date, timezone) {   
+
     // Getting values from slotConfig using destructuring
-    const { slotDurationHours, slotDurationMinutes, startTime, endTime } =
+    const { slotDurationHours, slotDurationMinutes, startTime, endTime, desiredTimezone } =
         config;
 
-    let defaultDate = new Date(date).toISOString().substring(0, 10);
+    let defaultDate = date;
     let slots = [];
     let _timeArrStartTime;
     let _timeArrEndTime;
@@ -16,16 +17,21 @@ function getSlots(date, timezone) {
     let _endSlot;
     let _startSlot;
 
+    let startTime_hr = startTime.split(':')[0]
+    let startTime_min = startTime.split(':')[1]
+    let endTime_hr = endTime.split(':')[0]
+    let endTime_min = endTime.split(':')[1]
+
+    let aaaa = moment(moment(date).tz(desiredTimezone).format()).set('hour', endTime_hr).set('minute', endTime_min).format('YYYY-MM-DD HH:mm:ss')
+    let ctz = moment.tz.guess();
+
     // Creating time stamp using time from timeArr and default date
-    _timeArrStartTime = new Date(defaultDate + " " + startTime).getTime();
-    _timeArrEndTime = new Date(defaultDate + " " + endTime).getTime();
+    _timeArrStartTime = moment(moment(defaultDate).tz(desiredTimezone).format()).set('hour',startTime_hr).set('minute', startTime_min).valueOf();
+    _timeArrEndTime = moment(moment(defaultDate).tz(desiredTimezone).format()).set('hour',endTime_hr).set('minute', endTime_min).valueOf();
     _tempSlotStartTime = _timeArrStartTime;
 
     // Loop around till _tempSlotStartTime is less end time from timeArr
-    while (
-        new Date(_tempSlotStartTime).getTime() <
-        new Date(_timeArrEndTime).getTime()
-    ) {
+    while (moment(new Date(_tempSlotStartTime)).valueOf() < moment(new Date(_timeArrEndTime)).valueOf()) {
         _endSlot = new Date(_tempSlotStartTime);
         _startSlot = new Date(_tempSlotStartTime);
 
@@ -38,12 +44,9 @@ function getSlots(date, timezone) {
         );
 
         // Check _tempSlotStartTime is less than end time after adding minutes and hours, if true push into slotsArr
-        if (
-            new Date(_tempSlotStartTime).getTime() <=
-            new Date(_timeArrEndTime).getTime()
-        ) {
-            moment_start = moment(new Date(_startSlot));
-            moment_end = moment(_endSlot);
+        if (new Date(_tempSlotStartTime).getTime() <= new Date(_timeArrEndTime).getTime()) {
+             moment_start = moment(new Date(_startSlot));
+             moment_end = moment(_endSlot);
 
             slots.push(moment_start.tz(timezone).format().substring(0, 19));
         }
@@ -86,10 +89,10 @@ function checkIfSlotIsAvailable(slot, filteredEventBasedOnDates){
 }
 
 function validateEvent(start_event, end_event, eventsArray) {
+    if(eventsArray.length == 0) return true
     if (start_event > end_event) return false;
 
-    const { slotDurationHours, slotDurationMinutes, startTime, endTime } =
-        config;
+    const { slotDurationHours, slotDurationMinutes, startTime, endTime } = config;
 
     let default_date = start_event.toISOString().substring(0, 10);
     let _timeArrStartTime = new Date(default_date + " " + startTime).getTime();
@@ -119,22 +122,37 @@ function validateEvent(start_event, end_event, eventsArray) {
 }
 
 function filterEventsBasedOnStartAndEndDates(eventsArray, start, end){
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const startDate = moment(start);
+    const endDate = moment(end);
 
     let e = eventsArray.filter(event => {
-        let a = new Date(event.start_event) >= new Date(startDate) && new Date(event.start_event) < new Date(endDate).setDate(new Date(endDate).getDate() + 1);
-        let b = new Date(event.start_event) > new Date(startDate) && new Date(event.start_event) <= new Date(endDate).setDate(new Date(endDate).getDate() + 1) 
+        let start_event = new Date(event.start_event);
+
+        if(moment(startDate).isSame(endDate)){
+            return moment(start_event).isSame(startDate, 'day');
+        }
+
+        let a = moment(start_event).isSameOrAfter(startDate, 'day') && moment(start_event).isBefore(endDate, 'day')
+        let b = moment(start_event).isAfter(startDate, 'day') && moment(start_event).isSameOrBefore(endDate, 'day')
         return  a || b;
             
     });
-
     return e;
+}
+
+function getUTCFormat(date){
+    return new moment(date, "YYYY-MM-DDTHH:mm").utc().format().substring(0, 19);
+}
+
+function getTimeZoneFormat(date, timezone){
+    return moment.utc(date).tz(timezone).format()  
 }
 
 module.exports = {
     getSlots,
     getAvailableSlots,
     validateEvent,
-    filterEventsBasedOnStartAndEndDates
+    filterEventsBasedOnStartAndEndDates,
+    getUTCFormat,
+    getTimeZoneFormat
 };

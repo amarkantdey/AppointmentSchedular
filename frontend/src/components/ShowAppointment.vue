@@ -5,22 +5,22 @@
         <h2>Show Appointments</h2>
             <form>
                 <div class="row">
-                    <div class="form-group col-md-6">
-                        <label htmlFor="startDate">Start Date</label>
+                    <div class="form-group col-md-6  mt-4">
+                        <label htmlFor="startDate"><b>Start Date</b></label>
                         <b-form-datepicker v-model="startDate"></b-form-datepicker>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label htmlFor="endDate" >End Date</label>
+                    <div class="form-group col-md-6  mt-4">
+                        <label htmlFor="endDate" ><b>End Date</b></label>
                         <b-form-datepicker v-model="endDate"></b-form-datepicker>
                     </div>
                 </div>
-                <div class="row">
-                    <button type="button" @click='getEvents($event)' class="btn btn-primary" style="margin: 10px">Show Events</button>
+                <div class="row  justify-content-center">
+                    <button type="button" @click='getEvents($event)' class="btn btn-primary" style="margin: 10px; width: 200px">Show Events</button>                    
                 </div>                
             </form>
         </div>
     </div>
-    <div class="row">
+    <div v-if="items.length > 0" class="row">
         <table class="table">
       <thead>
         <tr>
@@ -30,6 +30,7 @@
         </tr>
       </thead>
       <tbody>
+        <tr v-if="items && items.length == 0">No Records found</tr>
         <tr v-for="user in items" v-bind:key="user.id"> 
           <td>{{user.date}}</td>
           <td>{{user.from}}</td>
@@ -38,6 +39,7 @@
       </tbody>
     </table> 
     </div>
+    <div v-else class="row justify-content-center"><b>No Records found</b></div>
     </div>
 </template>
 

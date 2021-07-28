@@ -42,5 +42,6 @@ module.exports = {
     slotDurationHours:SLOT_DURATION_HOURS,
     slotDurationMinutes:SLOT_DURATION_MINUTES,
     startTime:START_TIME,
-    endTime:END_TIME
+    endTime:END_TIME,
+    desiredTimezone:TIMEZONE
 }

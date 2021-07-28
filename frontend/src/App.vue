@@ -1,16 +1,24 @@
 <template>
   <div id="app">
-    <Appointment />
+    <div>
+      <b-tabs content-class="mt-3">
+        <b-tab title="Book Appointment" active><BookAppointment/></b-tab>
+        <b-tab title="Show Appointments"><ShowAppointment /></b-tab>        
+      </b-tabs>
+    </div>
+    
   </div>
 </template>
 
 <script>
-import Appointment from './components/Appointment.vue'
+import ShowAppointment from './components/ShowAppointment.vue'
+import BookAppointment from './components/BookAppointment.vue'
 
 export default {
   name: 'App',
   components: {
-    Appointment
+    ShowAppointment,
+    BookAppointment
   }
 }
 </script>
