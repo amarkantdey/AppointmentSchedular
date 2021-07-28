@@ -6,7 +6,7 @@ export async function getAllEvents(startDate, endDate) {
     if(startDate && endDate){
         let timezone = moment.tz.guess();
         //const response = await axios.get(`https://appoinment-scheduler-api.herokuapp.com/api/event?startDate=${startDate}&endDate=${endDate}&timezone=${timezone}`);
-        const response = await axios.get(`http://localhost:8081/api/event?startDate=${startDate}&endDate=${endDate}&timezone=${timezone}`);
+        const response = await axios.get(`https://appoinment-scheduler-api.herokuapp.com/api/event?startDate=${startDate}&endDate=${endDate}&timezone=${timezone}`);
         response.data.map(event => {
             event.date = new Date(event.start_event).toLocaleDateString(),
             event.from = new Date(event.start_event).toLocaleTimeString(),
@@ -21,7 +21,7 @@ export async function getAllEvents(startDate, endDate) {
 export async function getFreeSlots(date, timezone) {
     if(date && timezone){
         //const response = await axios.get(`https://appoinment-scheduler-api.herokuapp.com/api/freeSlots?date=${date}&timezone=${timezone}`);
-        const response = await axios.get(`http://localhost:8081/api/freeSlots?date=${date}&timezone=${timezone}`);
+        const response = await axios.get(`https://appoinment-scheduler-api.herokuapp.com/api/freeSlots?date=${date}&timezone=${timezone}`);
         response.data.map(slot => {
             return moment(slot).tz(timezone)
         })
