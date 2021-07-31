@@ -8,6 +8,7 @@ const {
     getUTCFormat,
     getTimeZoneFormat,
     checkForOverlappingEvents,
+    isEventBackDated,
 } = require("../services/eventServices");
 const firestore = firebase.firestore();
 var moment = require("moment-timezone");
@@ -67,6 +68,10 @@ const addEvent = async (req, res, next) => {
             });
         }
 
+        if(isEventBackDated(moment(start_event))){
+            res.status(400).send("Back dated events cannot be added");
+        }
+        
         //Check for overlapping events
         if(!checkForOverlappingEvents(start_event, end_event, eventsArray)){
             res.status(422).send("Event already exists between the selected range");

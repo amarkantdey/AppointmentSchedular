@@ -147,6 +147,13 @@ function checkForOverlappingEvents(start_event, end_event, eventsArray){
     return returnValue;
 }
 
+function isEventBackDated(startDate, timezone){
+    let date = moment(moment(startDate).format('MM/DD/YYYY'));
+    let currentDate = moment().format('MM/DD/YYYY');
+    
+    return moment(date).isBefore(currentDate);
+}
+
 function filterEventsBasedOnStartAndEndDates(eventsArray, start, end){
     const startDate = moment(start);
     const endDate = moment(end);
@@ -181,5 +188,6 @@ module.exports = {
     filterEventsBasedOnStartAndEndDates,
     getUTCFormat,
     getTimeZoneFormat,
-    checkForOverlappingEvents
+    checkForOverlappingEvents,
+    isEventBackDated
 };
