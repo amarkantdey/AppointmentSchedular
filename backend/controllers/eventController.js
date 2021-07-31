@@ -77,7 +77,7 @@ const addEvent = async (req, res, next) => {
             event.end_event = getUTCFormat(event.end_event)
             delete event.timezone
             await firestore.collection("events").add(event);
-            res.status(200).send("Record added successfully");
+            res.status(200).send("Appointment booked successfully");
         } else {
             res.status(400).send("Event timings range not allowed");
         }
