@@ -20,7 +20,7 @@
             </form>
         </div>
     </div>
-    <div v-if="items.length > 0" class="row">
+    <div v-if="showGrid && items.length > 0" class="row">
         <table class="table">
       <thead>
         <tr>
@@ -39,7 +39,7 @@
       </tbody>
     </table> 
     </div>
-    <div v-else class="row justify-content-center"><b>No Records found</b></div>
+    <div v-if="showGrid && items.length == 0" class="row justify-content-center"><b>No Records found</b></div>
     </div>
 </template>
 
@@ -51,6 +51,7 @@ export default {
   data() {
     return {
       startDate:'',
+      showGrid: false,
       endDate:'',
       events:'',
       fields: ['Date', 'From', 'To'],
@@ -61,14 +62,13 @@ export default {
       getEvents(){
           getAllEvents(this.startDate, this.endDate).then(response => {
              this.items = response
+             this.showGrid = true;
           })
       },
       clearForm() {
           this.appointmentDate = "";
+          this.showGrid = false;
       }
-  },
-  mounted () {
-    this.getEvents();
   }
 }
 </script>

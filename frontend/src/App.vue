@@ -19,7 +19,10 @@ export default {
   components: {
     ShowAppointment,
     BookAppointment
-  }
+  },
+  created(){
+        document.title = "Appointment Scheduler"
+    }
 }
 </script>
 

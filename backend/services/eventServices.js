@@ -95,29 +95,55 @@ function validateEvent(start_event, end_event, eventsArray) {
     const { slotDurationHours, slotDurationMinutes, startTime, endTime } = config;
 
     let default_date = start_event.toISOString().substring(0, 10);
-    let _timeArrStartTime = new Date(default_date + " " + startTime).getTime();
-    let _timeArrEndTime = new Date(default_date + " " + endTime).getTime();
-    let minStartEventTime = new Date(_timeArrStartTime);
-    let maxStartEventTime = new Date(
-        new Date(_timeArrEndTime).getTime() - slotDurationMinutes * 60000
+    let _timeArrStartTime = moment(default_date + " " + startTime).valueOf();
+    let _timeArrEndTime = moment(default_date + " " + endTime).valueOf();
+    let minStartEventTime = moment(_timeArrStartTime);
+    let maxStartEventTime = moment(
+        new Date(_timeArrEndTime).valueOf() - slotDurationMinutes * 60000
     );
 
-    if (start_event.getTime() < minStartEventTime.getTime() || start_event.getTime() > maxStartEventTime.getTime()) {
+    if (start_event.valueOf() < minStartEventTime.valueOf() || start_event.valueOf() > maxStartEventTime.valueOf()) {
         return false;
     }
 
-    const starteventISO = new Date(start_event).getTime();
-    const endeventISO = new Date(end_event).getTime();
+    const starteventISO = start_event.valueOf();
+    const endeventISO = end_event.valueOf();
     let returnValue = true;
 
     eventsArray.forEach(event => {
-        if((new Date(event.start_event).getTime() >= starteventISO && new Date(event.start_event).getTime() < endeventISO)
-            || (new Date(event.end_event).getTime() > starteventISO && new Date(event.end_event).getTime() <= endeventISO)){
+        if((moment(event.start_event).valueOf() >= starteventISO && moment(event.start_event).valueOf() < endeventISO)
+            || (moment(event.end_event).valueOf() > starteventISO && moment(event.end_event).valueOf() <= endeventISO)){
                 returnValue = false;
                 return false;
             }
     })
 
+    return returnValue;
+}
+
+function checkForOverlappingEvents(start_event, end_event, eventsArray){
+    let returnValue = true;
+    let start_event_time = moment(start_event).valueOf(); 
+    let end_event_time = moment(end_event).valueOf(); 
+
+    eventsArray.forEach(event => {
+        let event_start_time = moment(event.start_event).valueOf();
+        let event_end_time = moment(event.end_event).valueOf(); 
+
+        if(event_start_time < start_event_time && start_event_time < event_end_time){
+            returnValue = false;
+            return false; //start_event_time falls between start and end time of an existing event
+        }
+        else if(event_start_time < end_event_time && end_event_time < event_end_time){
+            returnValue = false;
+            return false; //end_event_time falls between start and end time of an existing event
+        }
+        else if((start_event_time < event_start_time && event_start_time <= end_event_time) && (start_event_time < event_end_time && event_end_time <= end_event_time)){
+            returnValue = false;
+            return false; //event_start_time & event_end_time both falls between start_event and end_event
+        }
+
+    })
     return returnValue;
 }
 
@@ -154,5 +180,6 @@ module.exports = {
     validateEvent,
     filterEventsBasedOnStartAndEndDates,
     getUTCFormat,
-    getTimeZoneFormat
+    getTimeZoneFormat,
+    checkForOverlappingEvents
 };

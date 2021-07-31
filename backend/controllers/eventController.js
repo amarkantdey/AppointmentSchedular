@@ -7,8 +7,10 @@ const {
     filterEventsBasedOnStartAndEndDates,
     getUTCFormat,
     getTimeZoneFormat,
+    checkForOverlappingEvents,
 } = require("../services/eventServices");
 const firestore = firebase.firestore();
+var moment = require("moment-timezone");
 
 const freeSlots = async (req, res, next) => {
     try {
@@ -37,7 +39,9 @@ const freeSlots = async (req, res, next) => {
         filteredEventBasedOnDates = eventsArray.filter((event) =>
             regex.test(event.start_event)
         );
+
         slots = getAvailableSlots(slots, filteredEventBasedOnDates);
+
 
         return res.status(200).send(slots);
     } catch (error) {
@@ -63,7 +67,12 @@ const addEvent = async (req, res, next) => {
             });
         }
 
-        if (validateEvent(new Date(start_event), new Date(end_event), eventsArray)) {
+        //Check for overlapping events
+        if(!checkForOverlappingEvents(start_event, end_event, eventsArray)){
+            res.status(422).send("Event already exists between the selected range");
+        }
+        
+        if (validateEvent(moment(start_event), moment(end_event), eventsArray)) {
             event.start_event = getUTCFormat(event.start_event)
             event.end_event = getUTCFormat(event.end_event)
             delete event.timezone
